@@ -14,7 +14,9 @@ jobs:
         with:
           node-version: "15"
       - uses: pnpm/action-setup@v1.2.1
-      - run: pnpm install
+        with:
+          version: 5.14.1
+      - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm run build
       - run: pnpm run check-format
