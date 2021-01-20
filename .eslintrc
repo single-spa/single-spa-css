@@ -1,0 +1,4 @@
+{
+  "extends": "ts-important-stuff",
+  "parser": "babel-eslint"
+}
