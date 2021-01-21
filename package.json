@@ -9,6 +9,7 @@
     "test": "jest",
     "clean": "rimraf lib",
     "build": "pnpm run clean && concurrently pnpm:build:*",
+    "prepublishOnly": "pnpm run build",
     "check-format": "prettier --check .",
     "build:code": "rollup -c",
     "build:types": "tsc",
