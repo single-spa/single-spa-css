@@ -1,0 +1,11 @@
+{
+  "files": ["src/single-spa-css.ts"],
+  "compilerOptions": {
+    "lib": ["DOM", "ES2015"],
+    "target": "ES5",
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationDir": "lib/types",
+    "strictNullChecks": true
+  }
+}

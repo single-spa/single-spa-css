@@ -1,0 +1,62 @@
+{
+  "name": "single-spa-css",
+  "version": "1.0.0",
+  "description": "Lifecycle helpers for loading CSS",
+  "type": "module",
+  "main": "lib/esm/single-spa-css.min.js",
+  "types": "lib/types/single-spa-css.d.ts",
+  "scripts": {
+    "test": "jest",
+    "clean": "rimraf lib",
+    "build": "pnpm run clean && concurrently pnpm:build:*",
+    "prepublishOnly": "pnpm run build",
+    "check-format": "prettier --check .",
+    "build:code": "rollup -c",
+    "build:types": "tsc",
+    "format": "prettier --write .",
+    "lint": "eslint src --ext ts"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged && concurrently pnpm:lint pnpm:test"
+    }
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/single-spa/single-spa-css.git"
+  },
+  "author": "Joel Denning",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/single-spa/single-spa-css/issues"
+  },
+  "homepage": "https://github.com/single-spa/single-spa-css#readme",
+  "devDependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/preset-typescript": "^7.12.7",
+    "@rollup/plugin-typescript": "^8.1.0",
+    "@testing-library/dom": "^7.29.4",
+    "@testing-library/jest-dom": "^5.11.9",
+    "@types/jest": "^26.0.20",
+    "babel-eslint": "^11.0.0-beta.2",
+    "babel-jest": "^26.6.3",
+    "concurrently": "^5.3.0",
+    "eslint": "^7.18.0",
+    "eslint-config-ts-important-stuff": "^1.1.0",
+    "husky": "^4.3.8",
+    "jest": "^26.6.3",
+    "jest-cli": "^26.6.3",
+    "prettier": "^2.2.1",
+    "pretty-quick": "^3.1.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.37.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "single-spa": "^5.9.0",
+    "tslib": "^2.1.0",
+    "typescript": "^4.1.3"
+  }
+}
