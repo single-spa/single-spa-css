@@ -1,7 +1,8 @@
 import { AppProps, LifeCycleFn } from "single-spa";
 
-const defaultOptions: FinalSingleSpaCssOpts = {
+const defaultOptions: Required<SingleSpaCssOpts> = {
   cssUrls: [],
+  webpackExtractedCss: false,
   timeout: 5000,
   shouldUnmount: true,
 };
@@ -14,10 +15,31 @@ export default function singleSpaCss<ExtraProps>(
   }
 
   // Requires polyfill in IE11
-  const opts = Object.assign({}, defaultOptions, _opts);
+  const opts: Required<SingleSpaCssOpts> = Object.assign(
+    {},
+    defaultOptions,
+    _opts
+  );
 
   if (!Array.isArray(opts.cssUrls)) {
     throw Error("single-spa-css: cssUrls must be an array");
+  }
+
+  const allCssUrls = opts.cssUrls;
+  if (opts.webpackExtractedCss) {
+    if (!__webpack_require__.cssAssets) {
+      throw Error(
+        "single-spa-css: to use webpackExtractedCss, add ExposeRuntimeCssAssetsPlugin to your webpack config."
+      );
+    }
+
+    allCssUrls.push(
+      ...__webpack_require__.cssAssets.map(
+        (fileName) =>
+          __webpack_public_path__ +
+          __webpack_require__.cssAssetFileName(fileName)
+      )
+    );
   }
 
   const linkElements: LinkElements = {};
@@ -25,7 +47,7 @@ export default function singleSpaCss<ExtraProps>(
 
   function bootstrap(props: AppProps) {
     return Promise.all(
-      opts.cssUrls.map(
+      allCssUrls.map(
         (cssUrl) =>
           new Promise<void>((resolve, reject) => {
             const [url] = extractUrl(cssUrl);
@@ -51,7 +73,7 @@ export default function singleSpaCss<ExtraProps>(
 
   function mount(props: AppProps) {
     return Promise.all(
-      opts.cssUrls.map(
+      allCssUrls.map(
         (cssUrl) =>
           new Promise<void>((resolve, reject) => {
             const [url, shouldUnmount] = extractUrl(cssUrl);
@@ -133,14 +155,9 @@ export default function singleSpaCss<ExtraProps>(
 
 type SingleSpaCssOpts = {
   cssUrls: CssUrl[];
+  webpackExtractedCss?: boolean;
   timeout?: number;
   shouldUnmount?: boolean;
-};
-
-type FinalSingleSpaCssOpts = {
-  cssUrls: CssUrl[];
-  timeout: number;
-  shouldUnmount: boolean;
 };
 
 type CssUrl =
