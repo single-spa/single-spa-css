@@ -27,9 +27,6 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
       compilation.hooks.afterOptimizeChunks.tap(
         "SingleSpaCssPlugin",
         (chunks) => {
-          compiler;
-          compilation;
-          debugger;
           chunks.forEach((chunk) => {
             if (chunk.hasEntryModule()) {
               let foundCssModule = false;
