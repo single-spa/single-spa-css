@@ -232,6 +232,42 @@ describe("single-spa-css", () => {
 
     expect(mountSucceeded).toBe(false);
   });
+
+  it(`correctly loads css assets exposed from ExposeRuntimeCssAssetsPlugin`, async () => {
+    // Simulate what ExposeRuntimeCssAssetsPlugin does
+    global.__webpack_public_path__ = "http://localhost:8080/";
+    global.__webpack_require__ = {
+      cssAssets: ["hi"],
+      cssAssetFileName(chunkId) {
+        return chunkId + ".css";
+      },
+    };
+
+    const lifecycles = singleSpaCss<{}>({
+      cssUrls: [],
+      webpackExtractedCss: true,
+    });
+
+    const props = createProps();
+
+    await lifecycles.bootstrap(props);
+
+    const mountPromise = lifecycles.mount(props);
+
+    await macroTick();
+
+    findLinkEl("http://localhost:8080/hi.css").dispatchEvent(
+      new CustomEvent("load")
+    );
+
+    await mountPromise;
+
+    expect(findLinkEl("http://localhost:8080/hi.css")).toBeInTheDocument();
+
+    await lifecycles.unmount(props);
+
+    expect(findLinkEl("http://localhost:8080/hi.css")).not.toBeInTheDocument();
+  });
 });
 
 function findPreloadEl(url: string): HTMLElement {
