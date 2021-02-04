@@ -43,7 +43,7 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
                   new webpack.runtime.GetChunkFilenameRuntimeModule(
                     MODULE_TYPE,
                     "single-spa-css",
-                    `${webpack.RuntimeGlobals.require}.cssAssetFilePath`,
+                    `${webpack.RuntimeGlobals.require}.cssAssetFileName`,
                     (referencedChunk) => {
                       return this.options.filename;
                     },
