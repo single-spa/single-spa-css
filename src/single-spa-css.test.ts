@@ -1,5 +1,4 @@
 import * as singleSpa from "single-spa";
-import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
 import singleSpaCss from "./single-spa-css";
 
 describe("single-spa-css", () => {
