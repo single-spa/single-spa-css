@@ -19,6 +19,7 @@ import singleSpaCss from 'single-spa-css';
 
 const cssLifecycles = singleSpaCss({
   // required: a list of CSS URLs to load
+  // can be omitted if webpackExtractedCss is set to true, do not specify webpack extracted css files here
   cssUrls: ['https://example.com/main.css'],
 
   // optional: defaults to false. This controls whether extracted CSS files from webpack
