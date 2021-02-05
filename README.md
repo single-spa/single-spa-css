@@ -28,7 +28,7 @@ const cssLifecycles = singleSpaCss({
 
   // optional: defaults to true. Indicates whether the <link> element for the CSS will be
   // unmounted when the single-spa microfrontend is unmounted.
-  shouldUnmount: true
+  shouldUnmount: true,
 
   // optional: defaults to 5000. The number of milliseconds to wait on the <link> to load
   // before failing the mount lifecycle.
