@@ -27,8 +27,6 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
   apply(compiler) {
     compiler.hooks.compilation.tap(pluginName, (compilation) => {
       compilation.hooks.contentHash.tap(pluginName, (chunk) => {
-        console.log("Chunk", chunk.name);
-
         const { outputOptions, chunkGraph } = compilation;
         const modules = chunkGraph.getChunkModulesIterableBySourceType(
           chunk,
