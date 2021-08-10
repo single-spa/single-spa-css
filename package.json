@@ -1,6 +1,6 @@
 {
   "name": "single-spa-css",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Lifecycle helpers for loading CSS",
   "type": "module",
   "main": "lib/esm/single-spa-css.min.js",
