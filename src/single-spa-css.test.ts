@@ -268,6 +268,45 @@ describe("single-spa-css", () => {
 
     expect(findLinkEl("http://localhost:8080/hi.css")).not.toBeInTheDocument();
   });
+
+  it(`supports the createLink option`, async () => {
+    const lifecycles = singleSpaCss<{}>({
+      cssUrls: ["https://example.com/main.css"],
+      webpackExtractedCss: false,
+      createLink(url) {
+        const linkEl = document.createElement("link");
+        linkEl.rel = "stylesheet";
+        linkEl.href = url;
+        linkEl.crossOrigin = "use-credentials";
+        return linkEl;
+      },
+    });
+
+    const props = createProps();
+
+    await lifecycles.bootstrap(props);
+
+    const mountPromise = lifecycles.mount(props);
+
+    await macroTick();
+
+    findLinkEl("https://example.com/main.css").dispatchEvent(
+      new CustomEvent("load")
+    );
+
+    await mountPromise;
+
+    expect(findLinkEl("https://example.com/main.css")).toBeInTheDocument();
+
+    expect(
+      (findLinkEl("https://example.com/main.css") as HTMLLinkElement)
+        .crossOrigin
+    ).toBe("use-credentials");
+
+    await lifecycles.unmount(props);
+
+    expect(findLinkEl("https://example.com/main.css")).not.toBeInTheDocument();
+  });
 });
 
 function findPreloadEl(url: string): HTMLElement {

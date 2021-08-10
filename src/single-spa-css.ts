@@ -5,6 +5,12 @@ const defaultOptions: Required<SingleSpaCssOpts> = {
   webpackExtractedCss: false,
   timeout: 5000,
   shouldUnmount: true,
+  createLink: (url) => {
+    const linkEl = document.createElement("link");
+    linkEl.href = url;
+    linkEl.rel = "stylesheet";
+    return linkEl;
+  },
 };
 
 export default function singleSpaCss<ExtraProps>(
@@ -91,9 +97,7 @@ export default function singleSpaCss<ExtraProps>(
                   `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} timed out after ${opts.timeout}ms`
                 );
               }, opts.timeout);
-              const linkEl = document.createElement("link");
-              linkEl.href = url;
-              linkEl.rel = "stylesheet";
+              const linkEl = opts.createLink(url);
               linkEl.addEventListener("load", () => {
                 clearTimeout(timeout);
                 resolve();
@@ -158,6 +162,7 @@ type SingleSpaCssOpts = {
   webpackExtractedCss?: boolean;
   timeout?: number;
   shouldUnmount?: boolean;
+  createLink?: (url: string) => HTMLLinkElement;
 };
 
 type CssUrl =
