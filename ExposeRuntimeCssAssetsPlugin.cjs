@@ -67,8 +67,11 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
                 );
 
                 if (modules) {
-                  const { hashFunction, hashDigest, hashDigestLength } =
-                    outputOptions;
+                  const {
+                    hashFunction,
+                    hashDigest,
+                    hashDigestLength,
+                  } = outputOptions;
                   const hash = webpack.util.createHash(hashFunction);
 
                   for (const m of modules) {
