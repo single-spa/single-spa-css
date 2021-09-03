@@ -12,9 +12,9 @@ class ExposedCssRuntimeModule extends RuntimeModule {
   }
   generate() {
     return Template.asString(
-      `${RuntimeGlobals.require}.cssAssets = ${JSON.stringify(
-        [this.chunk.id]
-      )};`
+      `${RuntimeGlobals.require}.cssAssets = ${JSON.stringify([
+        this.chunk.id,
+      ])};`
     );
   }
 }
@@ -67,11 +67,8 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
                 );
 
                 if (modules) {
-                  const {
-                    hashFunction,
-                    hashDigest,
-                    hashDigestLength,
-                  } = outputOptions;
+                  const { hashFunction, hashDigest, hashDigestLength } =
+                    outputOptions;
                   const hash = webpack.util.createHash(hashFunction);
 
                   for (const m of modules) {
