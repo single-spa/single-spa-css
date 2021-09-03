@@ -7,14 +7,13 @@ const { MODULE_TYPE } = require("mini-css-extract-plugin/dist/utils");
 const pluginName = "SingleSpaExposeRuntimeCssAssetsPlugin";
 
 class ExposedCssRuntimeModule extends RuntimeModule {
-  constructor(options) {
+  constructor() {
     super("exposed-css-runtime", 10);
-    this.options = options;
   }
   generate() {
     return Template.asString(
       `${RuntimeGlobals.require}.cssAssets = ${JSON.stringify(
-        this.options.assets
+        [this.chunk.id]
       )};`
     );
   }
@@ -100,7 +99,7 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
               );
               compilation.addRuntimeModule(
                 chunk,
-                new ExposedCssRuntimeModule({ assets: [chunk.name] })
+                new ExposedCssRuntimeModule()
               );
             }
           }
