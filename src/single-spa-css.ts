@@ -208,8 +208,25 @@ export default function singleSpaCss<ExtraProps>(
     let url = "";
     return new Promise((resolve, reject) => {
       axios.get(jsonUrl).then((res) => {
-        // TODO 这里可能存在多种格式的 manifest.json 文件，目前是最基础的格式
-        url = origin + "/" + res.data["main.css"];
+        // 这里可能存在多种格式的 manifest.json 文件，目前支持两种格式
+        /**
+         * {
+         *    "main.css": "main.f340417f.css",
+         *    "main.js": "spa-app-main-app.js"
+         * }
+         */
+        /**
+         * {"entrypoints": [
+              "static/css/main.af5826ae.css",
+              "main.2df2e8a2.js"
+            ]}
+         */
+        if (res.data["main.css"]) {
+          url = origin + "/" + res.data["main.css"];
+        }
+        if (res.data["entrypoints"]) {
+          url = origin + "/" + res.data["entrypoints"][0];
+        }
         resolve([
           url,
           opts.shouldUnmount, // 使用默认的
