@@ -157,7 +157,7 @@ export default function singleSpaCss<ExtraProps>(
   return { bootstrap, mount, unmount };
 }
 
-type SingleSpaCssOpts = {
+export type SingleSpaCssOpts = {
   cssUrls: CssUrl[];
   webpackExtractedCss?: boolean;
   timeout?: number;
@@ -178,7 +178,7 @@ type LinkElements = {
 
 type ElementsToUnmount = [HTMLLinkElement, string];
 
-type CSSLifecycles<ExtraProps> = {
+export type CSSLifecycles<ExtraProps> = {
   bootstrap: LifeCycleFn<ExtraProps>;
   mount: LifeCycleFn<ExtraProps>;
   unmount: LifeCycleFn<ExtraProps>;
