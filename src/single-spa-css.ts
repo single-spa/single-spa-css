@@ -204,8 +204,11 @@ export default function singleSpaCss<ExtraProps>(
   }
 
   function extractManifestCssUrl(jsonUrl: string): Promise<[string, boolean]> {
-    const origin = /^(http|https)?:\/\/[\w-.]+(:\d+)?/i.exec(jsonUrl)![0];
+    // const origin = /^(http|https)?:\/\/[\w-.]+(:\d+)?/i.exec(jsonUrl)![0];
+    let linkArr;
     let url = "";
+    linkArr = jsonUrl.split("/");
+    linkArr.pop();
     return new Promise((resolve, reject) => {
       axios.get(jsonUrl).then((res) => {
         // 这里可能存在多种格式的 manifest.json 文件，目前支持两种格式
@@ -222,11 +225,12 @@ export default function singleSpaCss<ExtraProps>(
             ]}
          */
         if (res.data["main.css"]) {
-          url = origin + "/" + res.data["main.css"];
+          linkArr.push(res.data["main.css"]);
         }
         if (res.data["entrypoints"]) {
-          url = origin + "/" + res.data["entrypoints"][0];
+          linkArr.push(res.data["entrypoints"][0]);
         }
+        url = linkArr.join("/");
         resolve([
           url,
           opts.shouldUnmount, // 使用默认的
