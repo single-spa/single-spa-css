@@ -13,9 +13,7 @@ const defaultOptions: Required<SingleSpaCssOpts> = {
   },
 };
 
-export default function singleSpaCss<ExtraProps>(
-  _opts: SingleSpaCssOpts
-): CSSLifecycles<ExtraProps> {
+export default function singleSpaCss(_opts: SingleSpaCssOpts): CSSLifecycles {
   if (!_opts || typeof _opts !== "object") {
     throw Error(`single-spa-css: opts must be an object`);
   }
@@ -51,9 +49,10 @@ export default function singleSpaCss<ExtraProps>(
   const linkElements: LinkElements = {};
   let linkElementsToUnmount: ElementsToUnmount[] = [];
 
-  function bootstrap(props: AppProps) {
+  function bootstrap(props: AppPropsWithCssExtra) {
+    const cssUrls = [...(props.cssUrls ?? []), ...allCssUrls];
     return Promise.all(
-      allCssUrls.map(
+      cssUrls.map(
         (cssUrl) =>
           new Promise<void>((resolve, reject) => {
             const [url] = extractUrl(cssUrl);
@@ -77,9 +76,11 @@ export default function singleSpaCss<ExtraProps>(
     );
   }
 
-  function mount(props: AppProps) {
+  function mount(props: AppPropsWithCssExtra) {
+    const cssUrls = [...(props.cssUrls ?? []), ...allCssUrls];
+
     return Promise.all(
-      allCssUrls.map(
+      cssUrls.map(
         (cssUrl) =>
           new Promise<void>((resolve, reject) => {
             const [url, shouldUnmount] = extractUrl(cssUrl);
@@ -122,7 +123,7 @@ export default function singleSpaCss<ExtraProps>(
     );
   }
 
-  function unmount(props: AppProps) {
+  function unmount(props: AppPropsWithCssExtra) {
     const elements = linkElementsToUnmount;
 
     // reset this array immediately so that only one mounted instance tries to unmount
@@ -178,8 +179,12 @@ type LinkElements = {
 
 type ElementsToUnmount = [HTMLLinkElement, string];
 
-type CSSLifecycles<ExtraProps> = {
-  bootstrap: LifeCycleFn<ExtraProps>;
-  mount: LifeCycleFn<ExtraProps>;
-  unmount: LifeCycleFn<ExtraProps>;
+interface AppPropsWithCssExtra extends AppProps {
+  cssUrls?: CssUrl[];
+}
+
+type CSSLifecycles = {
+  bootstrap: LifeCycleFn<AppPropsWithCssExtra>;
+  mount: LifeCycleFn<AppPropsWithCssExtra>;
+  unmount: LifeCycleFn<AppPropsWithCssExtra>;
 };
