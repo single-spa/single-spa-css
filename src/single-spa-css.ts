@@ -50,7 +50,16 @@ export default function singleSpaCss(_opts: SingleSpaCssOpts): CSSLifecycles {
   let linkElementsToUnmount: ElementsToUnmount[] = [];
 
   function bootstrap(props: AppPropsWithCssExtra) {
-    const cssUrls = [...(props.cssUrls ?? []), ...allCssUrls];
+    const cssUrls: CssUrl[] = [...allCssUrls];
+
+    if (props.cssUrls) {
+      if (!Array.isArray(props.cssUrls)) {
+        throw Error("single-spa-css: cssUrls must be an array");
+      }
+
+      cssUrls.push(...props.cssUrls);
+    }
+
     return Promise.all(
       cssUrls.map(
         (cssUrl) =>
