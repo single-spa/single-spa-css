@@ -22,7 +22,7 @@ describe("single-spa-css", () => {
     expect(() => singleSpaCss({ cssUrls: "/main.css" })).toThrowError();
   });
 
-  it(`throws if appProps.cssUrls is not an array`, () => {
+  it(`throws if customProps.cssUrls is not an array`, () => {
     const url = "https://example.com/main.css";
 
     const lifecycles = singleSpaCss<{}>({

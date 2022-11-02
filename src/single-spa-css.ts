@@ -1,4 +1,4 @@
-import { AppProps, LifeCycleFn } from "single-spa";
+import { AppProps, LifeCycleFn, CustomProps } from "single-spa";
 
 const defaultOptions: Required<SingleSpaCssOpts> = {
   cssUrls: [],
@@ -51,7 +51,7 @@ export default function singleSpaCss<ExtraProps>(
   const linkElements: LinkElements = {};
   let linkElementsToUnmount: ElementsToUnmount[] = [];
 
-  function bootstrap(props: AppProps & CssExtraProps & ExtraProps) {
+  function bootstrap(props: AppProps & CssCustomProps & ExtraProps) {
     const cssUrls: CssUrl[] = [...allCssUrls];
 
     if (props.cssUrls) {
@@ -87,7 +87,7 @@ export default function singleSpaCss<ExtraProps>(
     );
   }
 
-  function mount(props: AppProps & CssExtraProps & ExtraProps) {
+  function mount(props: AppProps & CssCustomProps & ExtraProps) {
     const cssUrls = [...(props.cssUrls ?? []), ...allCssUrls];
 
     return Promise.all(
@@ -134,7 +134,7 @@ export default function singleSpaCss<ExtraProps>(
     );
   }
 
-  function unmount(props: AppProps & CssExtraProps & ExtraProps) {
+  function unmount(props: AppProps & CssCustomProps & ExtraProps) {
     const elements = linkElementsToUnmount;
 
     // reset this array immediately so that only one mounted instance tries to unmount
@@ -190,12 +190,12 @@ type LinkElements = {
 
 type ElementsToUnmount = [HTMLLinkElement, string];
 
-type CssExtraProps = {
+type CssCustomProps = {
   cssUrls?: CssUrl[];
 };
 
 type CSSLifecycles<ExtraProps> = {
-  bootstrap: LifeCycleFn<AppProps & CssExtraProps & ExtraProps>;
-  mount: LifeCycleFn<AppProps & CssExtraProps & ExtraProps>;
-  unmount: LifeCycleFn<AppProps & CssExtraProps & ExtraProps>;
+  bootstrap: LifeCycleFn<AppProps & CssCustomProps & ExtraProps>;
+  mount: LifeCycleFn<AppProps & CssCustomProps & ExtraProps>;
+  unmount: LifeCycleFn<AppProps & CssCustomProps & ExtraProps>;
 };
