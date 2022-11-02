@@ -13,7 +13,9 @@ const defaultOptions: Required<SingleSpaCssOpts> = {
   },
 };
 
-export default function singleSpaCss(_opts: SingleSpaCssOpts): CSSLifecycles {
+export default function singleSpaCss<ExtraProps>(
+  _opts: SingleSpaCssOpts
+): CSSLifecycles<ExtraProps> {
   if (!_opts || typeof _opts !== "object") {
     throw Error(`single-spa-css: opts must be an object`);
   }
@@ -49,7 +51,7 @@ export default function singleSpaCss(_opts: SingleSpaCssOpts): CSSLifecycles {
   const linkElements: LinkElements = {};
   let linkElementsToUnmount: ElementsToUnmount[] = [];
 
-  function bootstrap(props: AppPropsWithCssExtra) {
+  function bootstrap(props: AppProps & CssExtraProps & ExtraProps) {
     const cssUrls: CssUrl[] = [...allCssUrls];
 
     if (props.cssUrls) {
@@ -85,7 +87,7 @@ export default function singleSpaCss(_opts: SingleSpaCssOpts): CSSLifecycles {
     );
   }
 
-  function mount(props: AppPropsWithCssExtra) {
+  function mount(props: AppProps & CssExtraProps & ExtraProps) {
     const cssUrls = [...(props.cssUrls ?? []), ...allCssUrls];
 
     return Promise.all(
@@ -132,7 +134,7 @@ export default function singleSpaCss(_opts: SingleSpaCssOpts): CSSLifecycles {
     );
   }
 
-  function unmount(props: AppPropsWithCssExtra) {
+  function unmount(props: AppProps & CssExtraProps & ExtraProps) {
     const elements = linkElementsToUnmount;
 
     // reset this array immediately so that only one mounted instance tries to unmount
@@ -188,12 +190,12 @@ type LinkElements = {
 
 type ElementsToUnmount = [HTMLLinkElement, string];
 
-interface AppPropsWithCssExtra extends AppProps {
+type CssExtraProps = {
   cssUrls?: CssUrl[];
-}
+};
 
-type CSSLifecycles = {
-  bootstrap: LifeCycleFn<AppPropsWithCssExtra>;
-  mount: LifeCycleFn<AppPropsWithCssExtra>;
-  unmount: LifeCycleFn<AppPropsWithCssExtra>;
+type CSSLifecycles<ExtraProps> = {
+  bootstrap: LifeCycleFn<AppProps & CssExtraProps & ExtraProps>;
+  mount: LifeCycleFn<AppProps & CssExtraProps & ExtraProps>;
+  unmount: LifeCycleFn<AppProps & CssExtraProps & ExtraProps>;
 };
