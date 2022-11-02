@@ -17,23 +17,42 @@ describe("single-spa-css", () => {
     expect(() => singleSpaCss("asdfsdf")).toThrowError();
   });
 
-  it(`throws if cssUrls is not an array`, () => {
+  it(`throws if opts.cssUrls is not an array`, () => {
     // @ts-ignore
     expect(() => singleSpaCss({ cssUrls: "/main.css" })).toThrowError();
   });
 
-  it(`preloads scripts during the bootstrap lifecycle`, async () => {
+  it(`throws if appProps.cssUrls is not an array`, () => {
     const url = "https://example.com/main.css";
 
     const lifecycles = singleSpaCss<{}>({
       cssUrls: [url],
     });
 
-    expect(findPreloadEl(url)).not.toBeInTheDocument();
+    expect(() =>
+      lifecycles.bootstrap({
+        ...createProps(),
+        // @ts-ignore
+        cssUrls: "/main.css",
+      })
+    ).toThrowError();
+  });
 
-    await lifecycles.bootstrap(createProps());
+  it(`preloads scripts during the bootstrap lifecycle`, async () => {
+    const url1 = "https://example.com/main_1.css";
+    const url2 = "https://example.com/main_2.css";
 
-    expect(findPreloadEl(url)).toBeInTheDocument();
+    const lifecycles = singleSpaCss<{}>({
+      cssUrls: [url1],
+    });
+
+    expect(findPreloadEl(url1)).not.toBeInTheDocument();
+    expect(findPreloadEl(url2)).not.toBeInTheDocument();
+
+    await lifecycles.bootstrap({ ...createProps(), cssUrls: [url2] });
+
+    expect(findPreloadEl(url1)).toBeInTheDocument();
+    expect(findPreloadEl(url2)).toBeInTheDocument();
   });
 
   it(`mounts <link> elements and waits for them to load before resolving the mount promise. Then it unmounts them`, async () => {
