@@ -4,6 +4,7 @@ const Template = require("webpack/lib/Template");
 const { RuntimeGlobals } = require("webpack");
 const { MODULE_TYPE } = require("mini-css-extract-plugin/dist/utils");
 
+/** @typedef {import("webpack").Compiler} Compiler */
 const pluginName = "SingleSpaExposeRuntimeCssAssetsPlugin";
 
 class ExposedCssRuntimeModule extends RuntimeModule {
@@ -23,10 +24,14 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
   constructor(options) {
     this.options = options;
   }
+
+  /**
+   * @param {Compiler} compiler
+   */
   apply(compiler) {
     compiler.hooks.compilation.tap(pluginName, (compilation) => {
+      const { outputOptions, chunkGraph } = compilation;
       compilation.hooks.contentHash.tap(pluginName, (chunk) => {
-        const { outputOptions, chunkGraph } = compilation;
         const modules = chunkGraph.getChunkModulesIterableBySourceType(
           chunk,
           MODULE_TYPE
@@ -49,9 +54,9 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
 
       compilation.hooks.afterOptimizeChunks.tap(pluginName, (chunks) => {
         chunks.forEach((chunk) => {
-          if (chunk.hasEntryModule()) {
+          if (chunkGraph.getNumberOfEntryModules(chunk) > 0) {
             let foundCssModule = false;
-            for (let module of chunk.getModules()) {
+            for (let module of chunkGraph.getChunkModules(chunk)) {
               if (module.type === MODULE_TYPE) {
                 foundCssModule = true;
                 break;
