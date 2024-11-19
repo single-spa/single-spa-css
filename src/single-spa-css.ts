@@ -1,4 +1,5 @@
 import { AppProps, LifeCycleFn } from "single-spa";
+import axios from "axios";
 
 const defaultOptions: Required<SingleSpaCssOpts> = {
   cssUrls: [],
@@ -11,6 +12,7 @@ const defaultOptions: Required<SingleSpaCssOpts> = {
     linkEl.rel = "stylesheet";
     return linkEl;
   },
+  manifestUrl: "",
 };
 
 export default function singleSpaCss<ExtraProps>(
@@ -30,8 +32,17 @@ export default function singleSpaCss<ExtraProps>(
   if (!Array.isArray(opts.cssUrls)) {
     throw Error("single-spa-css: cssUrls must be an array");
   }
+  if (
+    opts.cssUrls.length > 0 &&
+    opts.cssUrls.filter((url) => url).length === 0
+  ) {
+    throw Error("single-spa-css: cssUrls should not be empty string");
+  }
 
   const allCssUrls = opts.cssUrls;
+
+  const manifestUrl = opts.manifestUrl;
+
   if (opts.webpackExtractedCss) {
     if (!__webpack_require__.cssAssets) {
       throw Error(
@@ -51,74 +62,112 @@ export default function singleSpaCss<ExtraProps>(
   const linkElements: LinkElements = {};
   let linkElementsToUnmount: ElementsToUnmount[] = [];
 
+  // 生成 preload 链接并插入到 head
+  function genPreloadLink2Head(url: string) {
+    const preloadEl = document.querySelector(
+      `link[rel="preload"][as="style"][href="${url}"]`
+    );
+
+    if (!preloadEl) {
+      const linkEl = document.createElement("link");
+      linkEl.rel = "preload";
+      linkEl.setAttribute("as", "style");
+      linkEl.href = url;
+
+      document.head.appendChild(linkEl);
+    }
+  }
+
   function bootstrap(props: AppProps) {
     return Promise.all(
-      allCssUrls.map(
-        (cssUrl) =>
-          new Promise<void>((resolve, reject) => {
-            const [url] = extractUrl(cssUrl);
-            const preloadEl = document.querySelector(
-              `link[rel="preload"][as="style"][href="${url}"]`
-            );
-
-            if (!preloadEl) {
-              const linkEl = document.createElement("link");
-              linkEl.rel = "preload";
-              linkEl.setAttribute("as", "style");
-              linkEl.href = url;
-
-              document.head.appendChild(linkEl);
-            }
-
-            // Don't wait for preload to finish before finishing bootstrap
-            resolve();
-          })
-      )
+      allCssUrls
+        .map(
+          (cssUrl) =>
+            new Promise<void>((resolve, reject) => {
+              const [url] = extractUrl(cssUrl);
+              genPreloadLink2Head(url);
+              // Don't wait for preload to finish before finishing bootstrap
+              resolve();
+            })
+        )
+        .concat(
+          manifestUrl
+            ? new Promise<void>((resolve) => {
+                extractManifestCssUrl(manifestUrl).then(([url]) => {
+                  genPreloadLink2Head(url);
+                });
+                // Don't wait for preload to finish before finishing bootstrap
+                resolve();
+              })
+            : []
+        )
     );
+  }
+
+  function genLink2Head(url, shouldUnmount, props, opts, resolve, reject) {
+    const existingLinkEl = document.querySelector(
+      `link[rel="stylesheet"][href="${url}"]`
+    );
+
+    if (existingLinkEl) {
+      linkElements[url] = existingLinkEl as HTMLLinkElement;
+      resolve();
+    } else {
+      const timeout = setTimeout(() => {
+        reject(
+          `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} timed out after ${opts.timeout}ms`
+        );
+      }, opts.timeout);
+      const linkEl = opts.createLink(url);
+      linkEl.addEventListener("load", () => {
+        clearTimeout(timeout);
+        resolve();
+      });
+      linkEl.addEventListener("error", () => {
+        clearTimeout(timeout);
+        reject(
+          Error(
+            `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} failed.`
+          )
+        );
+      });
+      linkElements[url] = linkEl;
+      document.head.appendChild(linkEl);
+
+      if (shouldUnmount) {
+        linkElementsToUnmount.push([linkEl, url]);
+      }
+    }
   }
 
   function mount(props: AppProps) {
     return Promise.all(
-      allCssUrls.map(
-        (cssUrl) =>
-          new Promise<void>((resolve, reject) => {
-            const [url, shouldUnmount] = extractUrl(cssUrl);
-
-            const existingLinkEl = document.querySelector(
-              `link[rel="stylesheet"][href="${url}"]`
-            );
-
-            if (existingLinkEl) {
-              linkElements[url] = existingLinkEl as HTMLLinkElement;
-              resolve();
-            } else {
-              const timeout = setTimeout(() => {
-                reject(
-                  `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} timed out after ${opts.timeout}ms`
+      allCssUrls
+        .map(
+          (cssUrl) =>
+            new Promise<void>((resolve, reject) => {
+              const [url, shouldUnmount] = extractUrl(cssUrl);
+              genLink2Head(url, shouldUnmount, props, opts, resolve, reject);
+            })
+        )
+        .concat(
+          manifestUrl
+            ? new Promise<void>((resolve, reject) => {
+                extractManifestCssUrl(manifestUrl).then(
+                  ([url, shouldUnmount]) => {
+                    genLink2Head(
+                      url,
+                      shouldUnmount,
+                      props,
+                      opts,
+                      resolve,
+                      reject
+                    );
+                  }
                 );
-              }, opts.timeout);
-              const linkEl = opts.createLink(url);
-              linkEl.addEventListener("load", () => {
-                clearTimeout(timeout);
-                resolve();
-              });
-              linkEl.addEventListener("error", () => {
-                clearTimeout(timeout);
-                reject(
-                  Error(
-                    `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} failed.`
-                  )
-                );
-              });
-              linkElements[url] = linkEl;
-              document.head.appendChild(linkEl);
-
-              if (shouldUnmount) {
-                linkElementsToUnmount.push([linkEl, url]);
-              }
-            }
-          })
-      )
+              })
+            : []
+        )
     );
   }
 
@@ -154,15 +203,52 @@ export default function singleSpaCss<ExtraProps>(
     }
   }
 
+  function extractManifestCssUrl(jsonUrl: string): Promise<[string, boolean]> {
+    // const origin = /^(http|https)?:\/\/[\w-.]+(:\d+)?/i.exec(jsonUrl)![0];
+    let linkArr;
+    let url = "";
+    linkArr = jsonUrl.split("/");
+    linkArr.pop();
+    return new Promise((resolve, reject) => {
+      axios.get(jsonUrl).then((res) => {
+        // 这里可能存在多种格式的 manifest.json 文件，目前支持两种格式
+        /**
+         * {
+         *    "main.css": "main.f340417f.css",
+         *    "main.js": "spa-app-main-app.js"
+         * }
+         */
+        /**
+         * {"entrypoints": [
+              "static/css/main.af5826ae.css",
+              "main.2df2e8a2.js"
+            ]}
+         */
+        if (res.data["main.css"]) {
+          linkArr.push(res.data["main.css"]);
+        }
+        if (res.data["entrypoints"]) {
+          linkArr.push(res.data["entrypoints"][0]);
+        }
+        url = linkArr.join("/");
+        resolve([
+          url,
+          opts.shouldUnmount, // 使用默认的
+        ]);
+      });
+    });
+  }
+
   return { bootstrap, mount, unmount };
 }
 
 type SingleSpaCssOpts = {
-  cssUrls: CssUrl[];
+  cssUrls?: CssUrl[];
   webpackExtractedCss?: boolean;
   timeout?: number;
   shouldUnmount?: boolean;
   createLink?: (url: string) => HTMLLinkElement;
+  manifestUrl?: string;
 };
 
 type CssUrl =
