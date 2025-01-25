@@ -58,5 +58,6 @@
   },
   "dependencies": {
     "@types/webpack-env": "^1.16.0"
-  }
+  },
+  "packageManager": "pnpm@9.15.4"
 }
