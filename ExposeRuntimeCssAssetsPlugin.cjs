@@ -15,7 +15,7 @@ class ExposedCssRuntimeModule extends RuntimeModule {
     return Template.asString(
       `${RuntimeGlobals.require}.cssAssets = ${JSON.stringify([
         this.chunk.id,
-      ])};`
+      ])};`,
     );
   }
 }
@@ -34,7 +34,7 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
       compilation.hooks.contentHash.tap(pluginName, (chunk) => {
         const modules = chunkGraph.getChunkModulesIterableBySourceType(
           chunk,
-          MODULE_TYPE
+          MODULE_TYPE,
         );
 
         if (modules) {
@@ -68,15 +68,12 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
                 const { outputOptions, chunkGraph } = compilation;
                 const modules = chunkGraph.getChunkModulesIterableBySourceType(
                   chunk,
-                  MODULE_TYPE
+                  MODULE_TYPE,
                 );
 
                 if (modules) {
-                  const {
-                    hashFunction,
-                    hashDigest,
-                    hashDigestLength,
-                  } = outputOptions;
+                  const { hashFunction, hashDigest, hashDigestLength } =
+                    outputOptions;
                   const hash = webpack.util.createHash(hashFunction);
 
                   for (const m of modules) {
@@ -99,12 +96,12 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
                   (referencedChunk) => {
                     return this.options.filename;
                   },
-                  true
-                )
+                  true,
+                ),
               );
               compilation.addRuntimeModule(
                 chunk,
-                new ExposedCssRuntimeModule()
+                new ExposedCssRuntimeModule(),
               );
             }
           }

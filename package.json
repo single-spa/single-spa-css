@@ -4,23 +4,17 @@
   "description": "Lifecycle helpers for loading CSS",
   "type": "module",
   "main": "lib/esm/single-spa-css.min.js",
-  "types": "lib/types/single-spa-css.d.ts",
+  "types": "lib/esm/single-spa-css.d.ts",
   "scripts": {
     "test": "jest",
     "clean": "rimraf lib",
-    "build": "pnpm run clean && concurrently pnpm:build:*",
+    "build": "pnpm run clean && rollup -c",
     "prepublishOnly": "pnpm run build",
     "check-format": "prettier --check .",
-    "build:code": "rollup -c",
     "watch:build": "rollup -cw",
-    "build:types": "tsc",
     "format": "prettier --write .",
-    "lint": "eslint src --ext ts"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged && concurrently pnpm:lint pnpm:test"
-    }
+    "lint": "eslint src",
+    "prepare": "husky"
   },
   "files": [
     "lib",
@@ -40,28 +34,30 @@
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-typescript": "^7.12.7",
-    "@rollup/plugin-typescript": "^8.1.0",
-    "@testing-library/dom": "^7.29.4",
-    "@testing-library/jest-dom": "^5.11.9",
-    "@types/jest": "^26.0.20",
-    "babel-eslint": "^11.0.0-beta.2",
-    "babel-jest": "^26.6.3",
-    "concurrently": "^5.3.0",
-    "eslint": "^7.19.0",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@types/jest": "^29.5.14",
+    "babel-eslint": "11.0.0-beta.2",
+    "babel-jest": "^29.7.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.19.0",
     "eslint-config-ts-important-stuff": "^1.1.0",
-    "husky": "^4.3.8",
-    "jest": "^26.6.3",
-    "jest-cli": "^26.6.3",
-    "prettier": "^2.2.1",
-    "pretty-quick": "^3.1.0",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.37.1",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "jest-cli": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.4.2",
+    "pretty-quick": "^4.0.0",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.32.0",
     "rollup-plugin-terser": "^7.0.2",
-    "single-spa": "^5.9.0",
+    "single-spa": "^6.0.3",
     "tslib": "^2.1.0",
-    "typescript": "^4.1.3"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "@types/webpack-env": "^1.16.0"
-  }
+  },
+  "packageManager": "pnpm@9.15.4"
 }
