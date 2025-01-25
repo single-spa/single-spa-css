@@ -6,15 +6,24 @@ const formatFolders = {
 };
 
 function createConfig(format) {
+  const outputFolder = `lib/${formatFolders[format] || format}`;
+
   return {
     input: "src/single-spa-css.ts",
     output: {
       name: format === "umd" ? "singleSpaCSS" : null,
       format,
-      file: `lib/${formatFolders[format] || format}/single-spa-css.min.js`,
+      file: `${outputFolder}/single-spa-css.min.js`,
       sourcemap: true,
     },
-    plugins: [typescript(), terser()],
+    plugins: [
+      typescript({
+        compilerOptions: {
+          declarationDir: outputFolder,
+        },
+      }),
+      terser(),
+    ],
   };
 }
 

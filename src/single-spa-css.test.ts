@@ -84,7 +84,7 @@ describe("single-spa-css", () => {
     findLinkEl(url).dispatchEvent(new CustomEvent("error"));
 
     await expect(mountPromise).rejects.toThrowError(
-      `loading CSS from URL ${url} failed`
+      `loading CSS from URL ${url} failed`,
     );
   });
 
@@ -227,7 +227,7 @@ describe("single-spa-css", () => {
 
     const mountSucceeded = await mountPromise.then(
       () => true,
-      () => false
+      () => false,
     );
 
     expect(mountSucceeded).toBe(false);
@@ -257,7 +257,7 @@ describe("single-spa-css", () => {
     await macroTick();
 
     findLinkEl("http://localhost:8080/hi.css").dispatchEvent(
-      new CustomEvent("load")
+      new CustomEvent("load"),
     );
 
     await mountPromise;
@@ -291,7 +291,7 @@ describe("single-spa-css", () => {
     await macroTick();
 
     findLinkEl("https://example.com/main.css").dispatchEvent(
-      new CustomEvent("load")
+      new CustomEvent("load"),
     );
 
     await mountPromise;
@@ -300,7 +300,7 @@ describe("single-spa-css", () => {
 
     expect(
       (findLinkEl("https://example.com/main.css") as HTMLLinkElement)
-        .crossOrigin
+        .crossOrigin,
     ).toBe("use-credentials");
 
     await lifecycles.unmount(props);
@@ -311,13 +311,13 @@ describe("single-spa-css", () => {
 
 function findPreloadEl(url: string): HTMLElement {
   return document.querySelector(
-    `link[rel="preload"][as="style"][href="${url}"]`
+    `link[rel="preload"][as="style"][href="${url}"]`,
   );
 }
 
 function findAllPreloadEls(url: string): NodeList {
   return document.querySelectorAll(
-    `link[rel="preload"][as="style"][href="${url}"]`
+    `link[rel="preload"][as="style"][href="${url}"]`,
   );
 }
 

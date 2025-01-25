@@ -14,7 +14,7 @@ const defaultOptions: Required<SingleSpaCssOpts> = {
 };
 
 export default function singleSpaCss<ExtraProps>(
-  _opts: SingleSpaCssOpts
+  _opts: SingleSpaCssOpts,
 ): CSSLifecycles<ExtraProps> {
   if (!_opts || typeof _opts !== "object") {
     throw Error(`single-spa-css: opts must be an object`);
@@ -24,7 +24,7 @@ export default function singleSpaCss<ExtraProps>(
   const opts: Required<SingleSpaCssOpts> = Object.assign(
     {},
     defaultOptions,
-    _opts
+    _opts,
   );
 
   if (!Array.isArray(opts.cssUrls)) {
@@ -35,7 +35,7 @@ export default function singleSpaCss<ExtraProps>(
   if (opts.webpackExtractedCss) {
     if (!__webpack_require__.cssAssets) {
       throw Error(
-        "single-spa-css: to use webpackExtractedCss, add ExposeRuntimeCssAssetsPlugin to your webpack config."
+        "single-spa-css: to use webpackExtractedCss, add ExposeRuntimeCssAssetsPlugin to your webpack config.",
       );
     }
 
@@ -43,8 +43,8 @@ export default function singleSpaCss<ExtraProps>(
       ...__webpack_require__.cssAssets.map(
         (fileName) =>
           __webpack_public_path__ +
-          __webpack_require__.cssAssetFileName(fileName)
-      )
+          __webpack_require__.cssAssetFileName(fileName),
+      ),
     );
   }
 
@@ -58,7 +58,7 @@ export default function singleSpaCss<ExtraProps>(
           new Promise<void>((resolve, reject) => {
             const [url] = extractUrl(cssUrl);
             const preloadEl = document.querySelector(
-              `link[rel="preload"][as="style"][href="${url}"]`
+              `link[rel="preload"][as="style"][href="${url}"]`,
             );
 
             if (!preloadEl) {
@@ -72,8 +72,8 @@ export default function singleSpaCss<ExtraProps>(
 
             // Don't wait for preload to finish before finishing bootstrap
             resolve();
-          })
-      )
+          }),
+      ),
     );
   }
 
@@ -85,7 +85,7 @@ export default function singleSpaCss<ExtraProps>(
             const [url, shouldUnmount] = extractUrl(cssUrl);
 
             const existingLinkEl = document.querySelector(
-              `link[rel="stylesheet"][href="${url}"]`
+              `link[rel="stylesheet"][href="${url}"]`,
             );
 
             if (existingLinkEl) {
@@ -94,7 +94,7 @@ export default function singleSpaCss<ExtraProps>(
             } else {
               const timeout = setTimeout(() => {
                 reject(
-                  `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} timed out after ${opts.timeout}ms`
+                  `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} timed out after ${opts.timeout}ms`,
                 );
               }, opts.timeout);
               const linkEl = opts.createLink(url);
@@ -106,8 +106,8 @@ export default function singleSpaCss<ExtraProps>(
                 clearTimeout(timeout);
                 reject(
                   Error(
-                    `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} failed.`
-                  )
+                    `single-spa-css: While mounting '${props.name}', loading CSS from URL ${linkEl.href} failed.`,
+                  ),
                 );
               });
               linkElements[url] = linkEl;
@@ -117,8 +117,8 @@ export default function singleSpaCss<ExtraProps>(
                 linkElementsToUnmount.push([linkEl, url]);
               }
             }
-          })
-      )
+          }),
+      ),
     );
   }
 
@@ -136,8 +136,8 @@ export default function singleSpaCss<ExtraProps>(
           if (linkEl.parentNode) {
             linkEl.parentNode.removeChild(linkEl);
           }
-        })
-      )
+        }),
+      ),
     );
   }
 
