@@ -30,22 +30,22 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
    */
   apply(compiler) {
     compiler.hooks.compilation.tap(pluginName, (compilation) => {
-      const { outputOptions, chunkGraph } = compilation;
+      const { outputOptions } = compilation;
       compilation.hooks.contentHash.tap(pluginName, (chunk) => {
-        const modules = chunkGraph.getChunkModulesIterableBySourceType(
-          chunk,
-          MODULE_TYPE,
-        );
+        const modules =
+          compilation.chunkGraph.getChunkModulesIterableBySourceType(
+            chunk,
+            MODULE_TYPE,
+          );
 
         if (modules) {
           const { hashFunction, hashDigest, hashDigestLength } = outputOptions;
           const hash = webpack.util.createHash(hashFunction);
 
           for (const m of modules) {
-            m.updateHash(hash, { chunkGraph });
+            m.updateHash(hash, { chunkGraph: compilation.chunkGraph });
           }
 
-          // eslint-disable-next-line no-param-reassign
           chunk.contentHash[MODULE_TYPE] = hash
             .digest(hashDigest)
             .substring(0, hashDigestLength);
@@ -54,9 +54,18 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
 
       compilation.hooks.afterOptimizeChunks.tap(pluginName, (chunks) => {
         chunks.forEach((chunk) => {
-          if (chunkGraph.getNumberOfEntryModules(chunk) > 0) {
+          if (compilation.chunkGraph.getNumberOfEntryModules(chunk) > 0) {
+            const entryModules = Array.from(
+              compilation.chunkGraph.getChunkEntryModulesIterable(chunk),
+            );
+
+            if (entryModules.length < 1) return;
+
             let foundCssModule = false;
-            for (let module of chunkGraph.getChunkModules(chunk)) {
+
+            for (const module of compilation.chunkGraph.getChunkModulesIterable(
+              chunk,
+            )) {
               if (module.type === MODULE_TYPE) {
                 foundCssModule = true;
                 break;
@@ -80,7 +89,6 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
                     m.updateHash(hash, { chunkGraph });
                   }
 
-                  // eslint-disable-next-line no-param-reassign
                   chunk.contentHash[MODULE_TYPE] = hash
                     .digest(hashDigest)
                     .substring(0, hashDigestLength);
