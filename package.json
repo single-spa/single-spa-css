@@ -40,6 +40,8 @@
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-typescript": "^7.12.7",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.26.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -66,8 +68,8 @@
     "@types/webpack-env": "^1.16.0"
   },
   "peerDependencies": {
-    "webpack": "*",
-    "mini-css-extract-plugin": "*"
+    "mini-css-extract-plugin": "*",
+    "webpack": "*"
   },
   "packageManager": "pnpm@10.10.0"
 }
