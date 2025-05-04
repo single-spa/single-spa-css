@@ -13,7 +13,7 @@ function createConfig(format) {
     output: {
       name: format === "umd" ? "singleSpaCSS" : null,
       format,
-      file: `${outputFolder}/single-spa-css.min.js`,
+      file: `${outputFolder}/single-spa-css.min.${format === "umd" ? "c" : ""}js`,
       sourcemap: true,
     },
     plugins: [

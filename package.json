@@ -3,8 +3,14 @@
   "version": "3.0.1",
   "description": "Lifecycle helpers for loading CSS",
   "type": "module",
-  "main": "lib/esm/single-spa-css.min.js",
-  "types": "lib/esm/single-spa-css.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/esm/single-spa-css.min.js",
+      "require": "./lib/umd/single-spa-css",
+      "types": "./lib/esm/single-spa-css.d.ts"
+    },
+    "./ExposeRuntimeCssAssetsPlugin": "./ExposeRuntimeCssAssetsPlugin.js"
+  },
   "scripts": {
     "test": "jest",
     "clean": "rimraf lib",
@@ -24,7 +30,7 @@
     "type": "git",
     "url": "git+https://github.com/single-spa/single-spa-css.git"
   },
-  "author": "Joel Denning",
+  "author": "Jolyn Denning",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/single-spa/single-spa-css/issues"
@@ -59,5 +65,9 @@
   "dependencies": {
     "@types/webpack-env": "^1.16.0"
   },
-  "packageManager": "pnpm@9.15.4"
+  "peerDependencies": {
+    "webpack": "*",
+    "mini-css-extract-plugin": "*"
+  },
+  "packageManager": "pnpm@10.10.0"
 }

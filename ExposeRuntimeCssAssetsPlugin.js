@@ -1,26 +1,27 @@
-const webpack = require("webpack");
-const RuntimeModule = require("webpack/lib/RuntimeModule");
-const Template = require("webpack/lib/Template");
-const { RuntimeGlobals } = require("webpack");
-const { MODULE_TYPE } = require("mini-css-extract-plugin/dist/utils");
+import webpack from "webpack/lib/index.js";
+import RuntimeModule from "webpack/lib/RuntimeModule.js";
+import RuntimeGlobals from "webpack/lib/RuntimeGlobals.js";
+import Template from "webpack/lib/Template.js";
+import { MODULE_TYPE } from "mini-css-extract-plugin/dist/utils.js";
 
 /** @typedef {import("webpack").Compiler} Compiler */
 const pluginName = "SingleSpaExposeRuntimeCssAssetsPlugin";
 
 class ExposedCssRuntimeModule extends RuntimeModule {
-  constructor() {
+  constructor(foundCssModule) {
     super("exposed-css-runtime", 10);
+    this.foundCssModule = foundCssModule;
   }
   generate() {
     return Template.asString(
-      `${RuntimeGlobals.require}.cssAssets = ${JSON.stringify([
-        this.chunk.id,
-      ])};`,
+      `${RuntimeGlobals.require}.cssAssets = ${JSON.stringify(
+        [this.foundCssModule && this.chunk.id].filter(Boolean),
+      )};`,
     );
   }
 }
 
-module.exports = class ExposeRuntimeCssAssetsPlugin {
+export default class ExposeRuntimeCssAssetsPlugin {
   constructor(options) {
     this.options = options;
   }
@@ -107,14 +108,15 @@ module.exports = class ExposeRuntimeCssAssetsPlugin {
                   true,
                 ),
               );
-              compilation.addRuntimeModule(
-                chunk,
-                new ExposedCssRuntimeModule(),
-              );
             }
+
+            compilation.addRuntimeModule(
+              chunk,
+              new ExposedCssRuntimeModule(foundCssModule),
+            );
           }
         });
       });
     });
   }
-};
+}
