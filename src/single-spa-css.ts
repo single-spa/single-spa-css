@@ -1,4 +1,4 @@
-import { AppProps, LifeCycleFn } from "single-spa";
+import { AppProps, LifeCycleFn, CustomProps } from "single-spa";
 
 const defaultOptions: Required<SingleSpaCssOpts> = {
   cssUrls: [],
@@ -51,9 +51,19 @@ export default function singleSpaCss<ExtraProps>(
   const linkElements: LinkElements = {};
   let linkElementsToUnmount: ElementsToUnmount[] = [];
 
-  function bootstrap(props: AppProps) {
+  function bootstrap(props: AppProps & CssCustomProps & ExtraProps) {
+    const cssUrls: CssUrl[] = [...allCssUrls];
+
+    if (props.cssUrls) {
+      if (!Array.isArray(props.cssUrls)) {
+        throw Error("single-spa-css: cssUrls must be an array");
+      }
+
+      cssUrls.push(...props.cssUrls);
+    }
+
     return Promise.all(
-      allCssUrls.map(
+      cssUrls.map(
         (cssUrl) =>
           new Promise<void>((resolve, reject) => {
             const [url] = extractUrl(cssUrl);
@@ -77,9 +87,11 @@ export default function singleSpaCss<ExtraProps>(
     );
   }
 
-  function mount(props: AppProps) {
+  function mount(props: AppProps & CssCustomProps & ExtraProps) {
+    const cssUrls = [...(props.cssUrls ?? []), ...allCssUrls];
+
     return Promise.all(
-      allCssUrls.map(
+      cssUrls.map(
         (cssUrl) =>
           new Promise<void>((resolve, reject) => {
             const [url, shouldUnmount] = extractUrl(cssUrl);
@@ -122,7 +134,7 @@ export default function singleSpaCss<ExtraProps>(
     );
   }
 
-  function unmount(props: AppProps) {
+  function unmount(props: AppProps & CssCustomProps & ExtraProps) {
     const elements = linkElementsToUnmount;
 
     // reset this array immediately so that only one mounted instance tries to unmount
@@ -178,8 +190,12 @@ type LinkElements = {
 
 type ElementsToUnmount = [HTMLLinkElement, string];
 
+type CssCustomProps = {
+  cssUrls?: CssUrl[];
+};
+
 type CSSLifecycles<ExtraProps> = {
-  bootstrap: LifeCycleFn<ExtraProps>;
-  mount: LifeCycleFn<ExtraProps>;
-  unmount: LifeCycleFn<ExtraProps>;
+  bootstrap: LifeCycleFn<AppProps & CssCustomProps & ExtraProps>;
+  mount: LifeCycleFn<AppProps & CssCustomProps & ExtraProps>;
+  unmount: LifeCycleFn<AppProps & CssCustomProps & ExtraProps>;
 };
