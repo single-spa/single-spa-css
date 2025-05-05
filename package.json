@@ -1,6 +1,6 @@
 {
   "name": "single-spa-css",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Lifecycle helpers for loading CSS",
   "type": "module",
   "exports": {
@@ -24,7 +24,7 @@
   },
   "files": [
     "lib",
-    "ExposeRuntimeCssAssetsPlugin.cjs"
+    "ExposeRuntimeCssAssetsPlugin.js"
   ],
   "repository": {
     "type": "git",
