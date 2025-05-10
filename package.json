@@ -1,6 +1,6 @@
 {
   "name": "single-spa-css",
-  "version": "4.0.1",
+  "version": "4.0.0",
   "description": "Lifecycle helpers for loading CSS",
   "type": "module",
   "exports": {
